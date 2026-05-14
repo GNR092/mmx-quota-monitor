@@ -34,7 +34,6 @@ async function fetchQuota() {
   try {
     const token = settings.mmx_token || '';
     const baseUrl = settings.mmx_base_url || 'https://api.minimax.io';
-    const planKey = settings.mmx_plan_key || '';
 
     if (!token) {
       throw new Error('Token no configurado');
@@ -44,10 +43,6 @@ async function fetchQuota() {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     };
-
-    if (planKey) {
-      headers['Token-Plan-Key'] = planKey;
-    }
 
     const response = await fetch(`${baseUrl}/v1/token_plan/remains`, {
       method: 'GET',

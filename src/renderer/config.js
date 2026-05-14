@@ -1,6 +1,5 @@
 const inputToken = document.getElementById('configToken');
 const inputBaseUrl = document.getElementById('configBaseUrl');
-const inputPlanKey = document.getElementById('configPlanKey');
 const inputInterval = document.getElementById('configInterval');
 const inputOpacity = document.getElementById('configOpacity');
 const opacityValue = document.getElementById('opacityValue');
@@ -23,7 +22,6 @@ async function loadSettings() {
 
   inputToken.value = currentSettings.mmx_token || '';
   inputBaseUrl.value = currentSettings.mmx_base_url || 'https://api.minimax.io';
-  inputPlanKey.value = currentSettings.mmx_plan_key || '';
   inputInterval.value = currentSettings.mmx_interval || '30';
   inputOpacity.value = currentSettings.mmx_opacity || 95;
   opacityValue.textContent = inputOpacity.value;
@@ -77,7 +75,6 @@ btnSave.addEventListener('click', () => {
   const settings = {
     mmx_token: inputToken.value,
     mmx_base_url: inputBaseUrl.value,
-    mmx_plan_key: inputPlanKey.value,
     mmx_interval: parseInt(inputInterval.value) || 30,
     mmx_opacity: parseInt(inputOpacity.value) || 95,
     mmx_model_opacity: parseInt(inputModelOpacity.value) || 100
