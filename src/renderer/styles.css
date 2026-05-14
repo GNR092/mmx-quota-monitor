@@ -156,6 +156,18 @@ body {
   color: #fff;
 }
 
+.model-reset {
+  font-size: 9px;
+  color: #4ecca3;
+  margin-bottom: 4px;
+}
+
+.model-period {
+  font-size: 9px;
+  color: #666;
+  margin-top: 4px;
+}
+
 .footer {
   text-align: center;
   padding-top: 8px;

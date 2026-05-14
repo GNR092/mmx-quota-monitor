@@ -10,13 +10,17 @@ let tray;
 let isQuitting = false;
 
 const createWindow = () => {
+  const savedBounds = store.get('windowBounds') || {};
   const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize;
 
+  const defaultX = screenWidth - 340;
+  const defaultY = 20;
+
   mainWindow = new BrowserWindow({
-    width: 320,
-    height: 450,
-    x: screenWidth - 340,
-    y: 20,
+    width: savedBounds.width || 320,
+    height: savedBounds.height || 450,
+    x: savedBounds.x !== undefined ? savedBounds.x : defaultX,
+    y: savedBounds.y !== undefined ? savedBounds.y : defaultY,
     frame: false,
     transparent: true,
     alwaysOnTop: true,
@@ -40,6 +44,16 @@ const createWindow = () => {
 
   mainWindow.on('closed', () => {
     mainWindow = null;
+  });
+
+  mainWindow.on('moved', () => {
+    const bounds = mainWindow.getBounds();
+    store.set('windowBounds', bounds);
+  });
+
+  mainWindow.on('resized', () => {
+    const bounds = mainWindow.getBounds();
+    store.set('windowBounds', bounds);
   });
 };
 
