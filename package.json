@@ -1,0 +1,19 @@
+{
+  "name": "mmx-quota-monitor",
+  "version": "1.0.0",
+  "description": "Monitor MiniMax API quota in real-time",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder"
+  },
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.3.3"
+  },
+  "dependencies": {
+    "electron-store": "^8.2.0"
+  }
+}
