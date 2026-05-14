@@ -11,24 +11,31 @@ const btnSave = document.getElementById('btnSaveConfig');
 const btnCancel = document.getElementById('btnCancelConfig');
 const btnConfigClose = document.getElementById('btnConfigClose');
 
-function closeConfig() {
+let availableModels = [];
+let currentSettings = {};
+
+async function loadSettings() {
   if (window.electronAPI) {
-    window.electronAPI.closeConfigWindow();
+    currentSettings = await window.electronAPI.getSettings();
   } else {
-    window.close();
+    currentSettings = JSON.parse(localStorage.getItem('mmx_settings') || '{}');
   }
+
+  inputToken.value = currentSettings.mmx_token || '';
+  inputBaseUrl.value = currentSettings.mmx_base_url || 'https://api.minimax.io';
+  inputPlanKey.value = currentSettings.mmx_plan_key || '';
+  inputInterval.value = currentSettings.mmx_interval || '30';
+  inputOpacity.value = currentSettings.mmx_opacity || 95;
+  opacityValue.textContent = inputOpacity.value;
+  inputModelOpacity.value = currentSettings.mmx_model_opacity || 100;
+  modelOpacityValue.textContent = inputModelOpacity.value;
+
+  availableModels = JSON.parse(currentSettings.mmx_available_models || '[]');
+  populateModelList();
 }
 
-btnConfigClose.addEventListener('click', closeConfig);
-btnCancel.addEventListener('click', closeConfig);
-
-inputModelOpacity.addEventListener('input', () => {
-  modelOpacityValue.textContent = inputModelOpacity.value;
-});
-
 function populateModelList() {
-  const availableModels = JSON.parse(localStorage.getItem('mmx_available_models') || '[]');
-  const selectedModels = (localStorage.getItem('mmx_models') || '').split(',').map(m => m.trim().toLowerCase()).filter(Boolean);
+  const selectedModels = (currentSettings.mmx_models || '').split(',').map(m => m.trim().toLowerCase()).filter(Boolean);
 
   modelFilterList.innerHTML = '';
 
@@ -45,30 +52,45 @@ function populateModelList() {
   }
 }
 
-populateModelList();
+loadSettings();
 
-btnSave.addEventListener('click', () => {
-  localStorage.setItem('mmx_token', inputToken.value);
-  localStorage.setItem('mmx_base_url', inputBaseUrl.value);
-  localStorage.setItem('mmx_plan_key', inputPlanKey.value);
-  localStorage.setItem('mmx_interval', inputInterval.value);
-  localStorage.setItem('mmx_opacity', inputOpacity.value);
-  localStorage.setItem('mmx_model_opacity', inputModelOpacity.value);
-
-  const checked = Array.from(modelFilterList.querySelectorAll('input:checked')).map(i => i.dataset.model);
-  localStorage.setItem('mmx_models', checked.length === availableModels.length ? '' : checked.join(','));
-
+function closeConfig() {
   if (window.electronAPI) {
     window.electronAPI.closeConfigWindow();
   } else {
     window.close();
   }
+}
+
+btnConfigClose.addEventListener('click', closeConfig);
+btnCancel.addEventListener('click', closeConfig);
+
+inputOpacity.addEventListener('input', () => {
+  opacityValue.textContent = inputOpacity.value;
 });
 
-btnCancel.addEventListener('click', () => {
+inputModelOpacity.addEventListener('input', () => {
+  modelOpacityValue.textContent = inputModelOpacity.value;
+});
+
+btnSave.addEventListener('click', () => {
+  const settings = {
+    mmx_token: inputToken.value,
+    mmx_base_url: inputBaseUrl.value,
+    mmx_plan_key: inputPlanKey.value,
+    mmx_interval: parseInt(inputInterval.value) || 30,
+    mmx_opacity: parseInt(inputOpacity.value) || 95,
+    mmx_model_opacity: parseInt(inputModelOpacity.value) || 100
+  };
+
+  const checked = Array.from(modelFilterList.querySelectorAll('input:checked')).map(i => i.dataset.model);
+  settings.mmx_models = checked.length === availableModels.length ? '' : checked.join(',');
+
   if (window.electronAPI) {
+    window.electronAPI.saveSettings(settings);
     window.electronAPI.closeConfigWindow();
   } else {
+    localStorage.setItem('mmx_settings', JSON.stringify(settings));
     window.close();
   }
 });

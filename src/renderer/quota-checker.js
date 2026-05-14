@@ -1,8 +1,6 @@
 const API_URL = 'https://api.minimax.io/v1/token_plan/remains';
 
-const getRefreshInterval = () => parseInt(localStorage.getItem('mmx_interval')) || 30;
-
-let countdown = getRefreshInterval();
+let settings = {};
 let countdownInterval;
 let isRefreshing = false;
 let quotaData = null;
@@ -11,20 +9,32 @@ let availableModels = [];
 const quotaListEl = document.getElementById('quotaList');
 const countdownEl = document.getElementById('countdown');
 const btnRefresh = document.getElementById('btnRefresh');
-const btnMinimize = document.getElementById('btnMinimize');
-const btnClose = document.getElementById('btnClose');
-const btnToggleTop = document.getElementById('btnToggleTop');
-const btnConfig = document.getElementById('btnConfig');
+
+const getRefreshInterval = () => settings.mmx_interval || 30;
+let countdown = getRefreshInterval();
+
+async function loadSettings() {
+  if (window.electronAPI) {
+    settings = await window.electronAPI.getSettings();
+  } else {
+    settings = JSON.parse(localStorage.getItem('mmx_settings') || '{}');
+  }
+  availableModels = JSON.parse(settings.mmx_available_models || '[]');
+}
 
 async function fetchQuota() {
   if (isRefreshing) return;
   isRefreshing = true;
   btnRefresh.style.opacity = '0.5';
 
+  if (Object.keys(settings).length === 0) {
+    await loadSettings();
+  }
+
   try {
-    const token = localStorage.getItem('mmx_token') || '';
-    const baseUrl = localStorage.getItem('mmx_base_url') || 'https://api.minimax.io';
-    const planKey = localStorage.getItem('mmx_plan_key') || '';
+    const token = settings.mmx_token || '';
+    const baseUrl = settings.mmx_base_url || 'https://api.minimax.io';
+    const planKey = settings.mmx_plan_key || '';
 
     if (!token) {
       throw new Error('Token no configurado');
@@ -69,7 +79,10 @@ function renderQuota(data) {
   }
 
   availableModels = models.map(m => m.model_name).filter(Boolean);
-  localStorage.setItem('mmx_available_models', JSON.stringify(availableModels));
+
+  if (window.electronAPI) {
+    window.electronAPI.saveSettings({ mmx_available_models: JSON.stringify(availableModels) });
+  }
 
   const timestamp = new Date().toLocaleTimeString();
   let html = '';
@@ -81,7 +94,7 @@ function renderQuota(data) {
     if (total === 0) return;
 
     const modelName = model.model_name || 'Unknown';
-    const allowedModels = localStorage.getItem('mmx_models');
+    const allowedModels = settings.mmx_models;
     if (allowedModels) {
       const modelList = allowedModels.split(',').map(m => m.trim().toLowerCase());
       if (!modelList.includes(modelName.toLowerCase())) return;
@@ -153,10 +166,10 @@ function startCountdown() {
 }
 
 function applyOpacity() {
-  const opacity = localStorage.getItem('mmx_opacity') || 95;
+  const opacity = settings.mmx_opacity || 95;
   document.querySelector('.content').style.background = `rgba(26, 26, 46, ${opacity / 100})`;
 
-  const modelOpacity = localStorage.getItem('mmx_model_opacity') || 100;
+  const modelOpacity = settings.mmx_model_opacity || 100;
   document.querySelectorAll('.model-card').forEach(card => {
     card.style.opacity = modelOpacity / 100;
   });
@@ -183,12 +196,19 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 }
 
 if (window.electronAPI) {
-  window.electronAPI.onConfigClosed(() => {
+  window.electronAPI.onConfigClosed(async () => {
+    await loadSettings();
     applyOpacity();
     resetCountdown();
     fetchQuota();
   });
   window.electronAPI.onDoRefreshQuota(() => {
     fetchQuota();
+  });
+  window.electronAPI.onSettingsUpdated(async (newSettings) => {
+    settings = { ...settings, ...newSettings };
+    availableModels = JSON.parse(settings.mmx_available_models || '[]');
+    applyOpacity();
+    resetCountdown();
   });
 }

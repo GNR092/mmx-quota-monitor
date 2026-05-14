@@ -1,5 +1,8 @@
 const { app, BrowserWindow, Tray, Menu, globalShortcut, nativeImage, screen, ipcMain } = require('electron');
 const path = require('path');
+const Store = require('electron-store');
+
+const store = new Store();
 
 let mainWindow;
 let configWindow;
@@ -94,6 +97,19 @@ const createTray = () => {
 
   ipcMain.on('refresh-quota', () => {
     mainWindow.webContents.send('do-refresh-quota');
+  });
+
+  ipcMain.on('save-settings', (event, settings) => {
+    Object.keys(settings).forEach(key => {
+      store.set(key, settings[key]);
+    });
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('settings-updated', settings);
+    }
+  });
+
+  ipcMain.handle('get-settings', () => {
+    return store.store;
   });
 
   ipcMain.on('open-config-window', () => {
