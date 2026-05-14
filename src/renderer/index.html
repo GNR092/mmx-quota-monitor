@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MMX Quota Monitor</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="window-header">
+    <span class="title">MMX Quota</span>
+    <div class="controls">
+      <button class="btn-toggle-top" id="btnToggleTop" onclick="toggleTop()" title="Toggle siempre visible">📌</button>
+      <button class="btn-minimize" id="btnMinimize" onclick="minimizeWin()" title="Minimizar">─</button>
+      <button class="btn-close" id="btnClose" onclick="closeWin()" title="Cerrar">✕</button>
+      <button class="btn-config" id="btnConfig" onclick="openConfig()" title="Configurar Token">⚙</button>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="status-bar">
+      <span class="status-label">Actualizando en:</span>
+      <span class="countdown" id="countdown">30s</span>
+      <button class="btn-refresh" id="btnRefresh" onclick="refreshQuota()" title="Actualizar ahora">↻</button>
+    </div>
+
+    <div class="quota-list" id="quotaList">
+      <div class="loading">Cargando...</div>
+    </div>
+
+    <div class="footer">
+      <small>Ctrl+Shift+M para mostrar/ocultar</small>
+    </div>
+  </div>
+
+  <script>
+    function openConfig() {
+      if (window.electronAPI) window.electronAPI.openConfigWindow();
+    }
+    function closeWin() {
+      if (window.electronAPI) window.electronAPI.closeWindow();
+    }
+    function minimizeWin() {
+      if (window.electronAPI) window.electronAPI.hideWindow();
+    }
+    function toggleTop() {
+      if (window.electronAPI) window.electronAPI.toggleAlwaysOnTop();
+    }
+    function refreshQuota() {
+      if (window.electronAPI) window.electronAPI.refreshQuota();
+    }
+  </script>
+
+  <script src="quota-checker.js"></script>
+</body>
+</html>
