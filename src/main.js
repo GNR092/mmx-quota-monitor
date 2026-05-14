@@ -17,15 +17,15 @@ const createWindow = () => {
   const defaultY = 20;
 
   mainWindow = new BrowserWindow({
-    width: savedBounds.width || 320,
-    height: savedBounds.height || 450,
+    width: savedBounds.width || 400,
+    height: savedBounds.height || 550,
     x: savedBounds.x !== undefined ? savedBounds.x : defaultX,
     y: savedBounds.y !== undefined ? savedBounds.y : defaultY,
     frame: false,
     transparent: true,
     alwaysOnTop: true,
     skipTaskbar: false,
-    resizable: false,
+    resizable: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -77,6 +77,7 @@ const createTray = () => {
     { label: 'Ocultar', click: () => mainWindow.hide() },
     { type: 'separator' },
     { label: 'Siempre visible: ON', click: () => toggleAlwaysOnTop() },
+    { label: 'Transparente: OFF', click: () => toggleTransparency() },
     { type: 'separator' },
     { label: 'Salir', click: () => { isQuitting = true; app.quit(); } }
   ]);
@@ -162,11 +163,17 @@ const createTray = () => {
 };
 
 let alwaysOnTop = true;
+let isTransparent = false;
 
-const toggleAlwaysOnTop = () => {
-  alwaysOnTop = !alwaysOnTop;
-  mainWindow.setAlwaysOnTop(alwaysOnTop);
-  tray.contextMenu.items[2].label = `Siempre visible: ${alwaysOnTop ? 'ON' : 'OFF'}`;
+const toggleTransparency = () => {
+  isTransparent = !isTransparent;
+  if (isTransparent) {
+    mainWindow.setIgnoreMouseEvents(true, { forward: true });
+    mainWindow.setOpacity(0.15);
+  } else {
+    mainWindow.setIgnoreMouseEvents(false);
+    mainWindow.setOpacity(1);
+  }
 };
 
 app.whenReady().then(() => {
@@ -174,12 +181,7 @@ app.whenReady().then(() => {
   createTray();
 
   globalShortcut.register('CommandOrControl+Shift+M', () => {
-    if (mainWindow.isVisible()) {
-      mainWindow.hide();
-    } else {
-      mainWindow.show();
-      mainWindow.focus();
-    }
+    toggleTransparency();
   });
 
   app.on('activate', () => {
