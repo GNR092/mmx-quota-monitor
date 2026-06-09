@@ -188,7 +188,7 @@ app.whenReady().then(() => {
 
   // Fallback via before-input-event (captura teclas antes del DOM)
   mainWindow.webContents.on('before-input-event', (event, input) => {
-    if (input.control && input.shift && (input.code === 'KeyM' || input.key === 'M')) {
+    if (input.controlKey && input.shiftKey && (input.code === 'KeyM' || input.key === 'M')) {
       toggleTransparency();
     }
   });
