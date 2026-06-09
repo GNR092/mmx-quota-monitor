@@ -167,11 +167,14 @@ let isTransparent = false;
 
 const toggleTransparency = () => {
   isTransparent = !isTransparent;
+  const state = isTransparent ? 'ON' : 'OFF';
+  console.log(`[DEBUG] toggleTransparency called: ${state}`);
   if (isTransparent) {
     mainWindow.setOpacity(0.15);
   } else {
     mainWindow.setOpacity(1);
   }
+  mainWindow.setTitle(`MMX Quota - Transparente: ${state}`);
 };
 
 app.whenReady().then(() => {
