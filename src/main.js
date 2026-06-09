@@ -168,10 +168,8 @@ let isTransparent = false;
 const toggleTransparency = () => {
   isTransparent = !isTransparent;
   if (isTransparent) {
-    mainWindow.setIgnoreMouseEvents(true, { forward: true });
     mainWindow.setOpacity(0.15);
   } else {
-    mainWindow.setIgnoreMouseEvents(false);
     mainWindow.setOpacity(1);
   }
 };
