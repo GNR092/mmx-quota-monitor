@@ -188,6 +188,17 @@ app.whenReady().then(() => {
     toggleTransparency();
   });
 
+  // Fallback via Menu accelerator (funciona en algunos entornos Wayland)
+  const menu = Menu.buildFromTemplate([
+    {
+      label: 'App',
+      submenu: [
+        { label: 'Toggle Transparency', accelerator: 'CmdOrCtrl+Shift+M', click: () => toggleTransparency() }
+      ]
+    }
+  ]);
+  Menu.setApplicationMenu(menu);
+
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
