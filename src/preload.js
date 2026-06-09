@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   refreshQuota: () => ipcRenderer.send('refresh-quota'),
   saveSettings: (settings) => ipcRenderer.send('save-settings', settings),
   getSettings: () => ipcRenderer.invoke('get-settings'),
+  toggleTransparency: () => ipcRenderer.send('toggle-transparency'),
   onAlwaysOnTopChanged: (callback) => ipcRenderer.on('always-on-top-changed', (event, value) => callback(value)),
   onConfigClosed: (callback) => ipcRenderer.on('config-closed', () => callback()),
   onDoRefreshQuota: (callback) => ipcRenderer.on('do-refresh-quota', () => callback()),

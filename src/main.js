@@ -184,6 +184,10 @@ app.whenReady().then(() => {
     toggleTransparency();
   });
 
+  ipcMain.on('toggle-transparency', () => {
+    toggleTransparency();
+  });
+
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();

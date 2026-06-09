@@ -243,6 +243,15 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
   fetchQuota();
 }
 
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey && e.shiftKey && e.key === 'M') {
+    e.preventDefault();
+    if (window.electronAPI) {
+      window.electronAPI.toggleTransparency();
+    }
+  }
+});
+
 if (window.electronAPI) {
   window.electronAPI.onConfigClosed(async () => {
     await loadSettings();
