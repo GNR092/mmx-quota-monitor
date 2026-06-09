@@ -244,7 +244,7 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
 }
 
 document.addEventListener('keydown', (e) => {
-  if (e.ctrlKey && e.shiftKey && e.key === 'M') {
+  if (e.ctrlKey && e.shiftKey && (e.code === 'KeyM' || e.key === 'M' || e.key === 'm')) {
     e.preventDefault();
     if (window.electronAPI) {
       window.electronAPI.toggleTransparency();
