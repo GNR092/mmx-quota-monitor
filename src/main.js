@@ -188,16 +188,12 @@ app.whenReady().then(() => {
     toggleTransparency();
   });
 
-  // Fallback via Menu accelerator (funciona en algunos entornos Wayland)
-  const menu = Menu.buildFromTemplate([
-    {
-      label: 'App',
-      submenu: [
-        { label: 'Toggle Transparency', accelerator: 'CmdOrCtrl+Shift+M', click: () => toggleTransparency() }
-      ]
+  // Fallback via before-input-event (captura teclas antes del DOM)
+  mainWindow.webContents.on('before-input-event', (event, input) => {
+    if (input.control && input.shift && (input.code === 'KeyM' || input.key === 'M')) {
+      toggleTransparency();
     }
-  ]);
-  Menu.setApplicationMenu(menu);
+  });
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
