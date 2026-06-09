@@ -83,13 +83,6 @@ function renderQuota(data) {
   let html = '';
 
   models.forEach(model => {
-    const used = model.current_interval_usage_count || 0;
-    const total = model.current_interval_total_count || 0;
-    const weeklyUsed = model.current_weekly_usage_count || 0;
-    const weeklyTotal = model.current_weekly_total_count || 0;
-
-    if (total === 0 && weeklyTotal === 0) return;
-
     const modelName = model.model_name || 'Unknown';
     const allowedModels = settings.mmx_models;
     if (allowedModels) {
@@ -97,32 +90,50 @@ function renderQuota(data) {
       if (!modelList.includes(modelName.toLowerCase())) return;
     }
 
-    const remaining = total - used;
-    const percentage = total > 0 ? Math.round((used / total) * 100) : 0;
+    // Nuevos campos de porcentaje (token-based billing)
+    const remainingPercent = model.current_interval_remaining_percent;
+    const weeklyRemainingPercent = model.current_weekly_remaining_percent;
+    const intervalStatus = model.current_interval_status;
+    const weeklyStatus = model.current_weekly_status;
+
+    // Fallback a campos antiguos si no hay porcentaje
+    if (remainingPercent === undefined || remainingPercent === null) {
+      const total = model.current_interval_total_count || 0;
+      const weeklyTotal = model.current_weekly_total_count || 0;
+      if (total === 0 && weeklyTotal === 0) return;
+    }
+
+    const usedPercent = remainingPercent !== undefined && remainingPercent !== null
+      ? Math.max(0, Math.min(100, 100 - remainingPercent))
+      : 0;
 
     let colorClass = 'green';
-    if (percentage >= 80) colorClass = 'red';
-    else if (percentage >= 50) colorClass = 'yellow';
+    if (usedPercent >= 80) colorClass = 'red';
+    else if (usedPercent >= 50) colorClass = 'yellow';
 
     const timeRange = `${formatTimestamp(model.start_time)}-${formatTimestamp(model.end_time)}`;
     const resetInfo = formatRemainsTime(model.remains_time);
     const weeklyResetInfo = formatRemainsTime(model.weekly_remains_time);
 
+    const isExhausted = intervalStatus === 3;
+    const statusText = isExhausted ? '<span class="status-exhausted">· Sin cuota</span>' : '';
+
+    const showWeekly = weeklyRemainingPercent !== undefined && weeklyRemainingPercent !== null && weeklyStatus !== 3;
+
     html += `
       <div class="model-card">
-        <div class="model-name">${escapeHtml(modelName)}</div>
+        <div class="model-name">${escapeHtml(modelName)} ${statusText}</div>
         <div class="model-time">${timeRange}(UTC) · ${resetInfo}</div>
         <div class="progress-bar">
-          <div class="progress-fill ${colorClass}" style="width: ${percentage}%"></div>
+          <div class="progress-fill ${colorClass}" style="width: ${usedPercent}%"></div>
         </div>
         <div class="model-stats">
-          <span class="used">${formatNumber(used)} / ${formatNumber(total)}</span>
-          <span class="remaining">${formatNumber(remaining)} restantes</span>
+          <span class="used">${remainingPercent || 0}% restante</span>
         </div>
-        ${weeklyTotal > 0 ? `
+        ${showWeekly ? `
         <div class="model-weekly">
           <span class="weekly-label">Weekly</span>
-          <span class="weekly-stats">${formatNumber(weeklyUsed)} / ${formatNumber(weeklyTotal)} · ${weeklyResetInfo}</span>
+          <span class="weekly-stats">${weeklyRemainingPercent}% restante · ${weeklyResetInfo}</span>
         </div>
         ` : ''}
       </div>

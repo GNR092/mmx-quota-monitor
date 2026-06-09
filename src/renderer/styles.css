@@ -127,6 +127,12 @@ body {
   margin-bottom: 6px;
 }
 
+.status-exhausted {
+  color: #e94560;
+  font-size: 10px;
+  font-weight: normal;
+}
+
 .progress-bar {
   height: 6px;
   background: rgba(255, 255, 255, 0.1);
