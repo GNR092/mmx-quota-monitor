@@ -128,12 +128,13 @@ function renderQuota(data) {
           <div class="progress-fill ${colorClass}" style="width: ${usedPercent}%"></div>
         </div>
         <div class="model-stats">
-          <span class="used">${remainingPercent || 0}% restante</span>
+          <span class="used">${usedPercent}% usado</span>
+          <span class="remaining">${remainingPercent}% restante</span>
         </div>
         ${showWeekly ? `
         <div class="model-weekly">
           <span class="weekly-label">Weekly</span>
-          <span class="weekly-stats">${weeklyRemainingPercent}% restante · ${weeklyResetInfo}</span>
+          <span class="weekly-stats">${100 - weeklyRemainingPercent}% usado · ${weeklyRemainingPercent}% restante · ${weeklyResetInfo}</span>
         </div>
         ` : ''}
       </div>

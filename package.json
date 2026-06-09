@@ -17,7 +17,5 @@
   "dependencies": {
     "electron-store": "^8.2.0"
   },
-  "build": {
-    "icon": "build/icon.ico"
-  }
+  "build": {}
 }
