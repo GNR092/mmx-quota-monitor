@@ -6,7 +6,8 @@
   "scripts": {
     "start": "electron .",
     "dev": "electron . --dev",
-    "build": "electron-builder"
+    "build": "electron-builder --linux dir",
+    "dist": "electron-builder"
   },
   "author": "",
   "license": "MIT",
